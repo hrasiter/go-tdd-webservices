@@ -3,9 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"example.go.com/data"
 )
 
 func main() {
-	handler := http.HandlerFunc(PlayerServer)
-	log.Fatal(http.ListenAndServe(":5000", handler))
+	ser := &PlayerServer{data.NewInMemoryPlayerStore()}
+	log.Fatal(http.ListenAndServe(":5000", ser))
 }
