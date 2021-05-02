@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"example.go.com/data"
+	"example.go.com/HttpServer/data"
 )
 
 func main() {

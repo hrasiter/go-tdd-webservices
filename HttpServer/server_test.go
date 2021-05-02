@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"example.go.com/data"
+	"example.go.com/HttpServer/data"
 )
 
 type StubPlayerStore struct {

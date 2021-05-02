@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"example.go.com/data"
+	"example.go.com/HttpServer/data"
 )
 
 type PlayerServer struct {
