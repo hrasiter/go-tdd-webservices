@@ -3,5 +3,6 @@ package main
 import "os"
 
 func main() {
-	CountDown(os.Stdout)
+	sleeper := &DefaultSleeper{}
+	CountDown(os.Stdout, sleeper)
 }
