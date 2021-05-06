@@ -4,12 +4,12 @@ import "sync"
 
 type Counter struct {
 	count int
-	mutex sync.Mutex
+	sync.Mutex
 }
 
 func (c *Counter) Increment() {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
+	c.Lock()
+	defer c.Unlock()
 	c.count++
 }
 
