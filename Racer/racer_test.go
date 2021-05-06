@@ -33,7 +33,7 @@ func TestRacer(t *testing.T) {
 		serverA := makeDelayedServer(11 * time.Second)
 		serverB := makeDelayedServer(12 * time.Second)
 
-		_, err := Race(serverA.URL, serverB.URL, 1*time.Second)
+		_, err := ConfigurableRace(serverA.URL, serverB.URL, 1*time.Second)
 
 		if err == nil {
 			t.Error("should respond an error")

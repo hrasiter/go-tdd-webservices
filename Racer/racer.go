@@ -8,26 +8,8 @@ import (
 
 const defaultTimeout = 10 * time.Second
 
-func Race(a, b string, timeout time.Duration) (string, error) {
-
-	// aDuration := measureResponseTime(a)
-	// bDuration := measureResponseTime(b)
-
-	// log.Printf("aDuration : %q, bDuration: %q\n", aDuration, bDuration)
-	// if aDuration < bDuration {
-	// 	winner = a
-	// } else {
-	// 	winner = b
-	// }
-
-	select {
-	case <-ping(a):
-		return a, nil
-	case <-ping(b):
-		return b, nil
-	case <-time.After(timeout):
-		return "", errors.New("timeout waiting for 10 seconds")
-	}
+func Race(a, b string) (string, error) {
+	return ConfigurableRace(a, b, defaultTimeout)
 }
 
 func ConfigurableRace(a, b string, timeout time.Duration) (string, error) {
