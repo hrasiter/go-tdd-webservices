@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -12,7 +13,12 @@ type Store interface {
 
 func Server(store Store) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-		data, _ := store.Fetch(r.Context())
+		data, err := store.Fetch(r.Context())
+
+		if err != nil {
+			log.Println("GOT ERROR!")
+		}
+
 		fmt.Fprint(rw, data)
 	}
 }

@@ -44,8 +44,9 @@ func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
 				log.Println("CANCELED")
 				return
 			default:
-				time.Sleep(10 * time.Millisecond)
+				time.Sleep(1000 * time.Millisecond)
 				result += string(c)
+				log.Println(result)
 			}
 		}
 
@@ -54,7 +55,7 @@ func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
 
 	select {
 	case <-ctx.Done():
-		log.Println("context canceled!!!")
+		log.Println("ov yeah, context canceled!!!")
 		return "", ctx.Err()
 	case res := <-data:
 		log.Println("data received...")
@@ -63,8 +64,8 @@ func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
 }
 
 func TestStore(t *testing.T) {
+	data := "hello, world"
 	t.Run("storing data", func(t *testing.T) {
-		data := "hello, world"
 		store := &SpyStore{data: data, t: t}
 		svr := Server(store)
 
@@ -80,8 +81,6 @@ func TestStore(t *testing.T) {
 		store.assertWasNotCanceled()
 	})
 	t.Run("canceling request", func(t *testing.T) {
-		data := "hello, world"
-
 		store := &SpyStore{data: data, t: t}
 		server := Server(store)
 
