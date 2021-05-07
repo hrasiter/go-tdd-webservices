@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,19 +31,41 @@ func (s *SpyStore) assertWasNotCanceled() {
 	}
 }
 
-func (s *SpyStore) Cancel() {
-	s.cancelled = true
-}
+func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
+	data := make(chan string, 1)
+	log.Println("Fetching...")
+	go func() {
+		var result string
 
-func (s *SpyStore) Fetch() string {
-	time.Sleep(100 * time.Millisecond)
-	return s.data
+		for _, c := range s.data {
+			select {
+			case <-ctx.Done():
+				log.Println("spyStore got canceled")
+				log.Println("CANCELED")
+				return
+			default:
+				time.Sleep(10 * time.Millisecond)
+				result += string(c)
+			}
+		}
+
+		data <- result
+	}()
+
+	select {
+	case <-ctx.Done():
+		log.Println("context canceled!!!")
+		return "", ctx.Err()
+	case res := <-data:
+		log.Println("data received...")
+		return res, nil
+	}
 }
 
 func TestStore(t *testing.T) {
 	t.Run("storing data", func(t *testing.T) {
 		data := "hello, world"
-		store := &SpyStore{data: data}
+		store := &SpyStore{data: data, t: t}
 		svr := Server(store)
 
 		request := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -59,7 +82,7 @@ func TestStore(t *testing.T) {
 	t.Run("canceling request", func(t *testing.T) {
 		data := "hello, world"
 
-		store := &SpyStore{data: data}
+		store := &SpyStore{data: data, t: t}
 		server := Server(store)
 
 		request := httptest.NewRequest(http.MethodGet, "/", nil)
