@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -8,28 +9,31 @@ import (
 )
 
 type PlayerServer struct {
-	store  data.PlayerStore
-	router *http.ServeMux
+	store data.PlayerStore
+	http.Handler
 }
 
 func NewPlayerServer(store data.PlayerStore) *PlayerServer {
-	p := &PlayerServer{
-		store,
-		http.NewServeMux()}
+	p := new(PlayerServer)
+	p.store = store
+	router := http.NewServeMux()
 
-	p.router.Handle("/league", http.HandlerFunc(p.leagueHandler))
-	p.router.Handle("/players/", http.HandlerFunc(p.playersHandler))
+	router.Handle("/league", http.HandlerFunc(p.leagueHandler))
+	router.Handle("/players/", http.HandlerFunc(p.playersHandler))
+
+	p.Handler = router
 
 	return p
 }
 
-func (p *PlayerServer) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-
-	p.router.ServeHTTP(rw, r)
-
-}
-
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
+	leageTable := []data.Player{
+		{Name: "Rasit",
+			Wins: 10,
+		},
+	}
+
+	json.NewEncoder(w).Encode(leageTable)
 	w.WriteHeader(http.StatusOK)
 }
 
