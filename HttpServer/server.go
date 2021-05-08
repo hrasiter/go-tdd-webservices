@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"example.go.com/HttpServer/data"
 )
@@ -13,12 +12,28 @@ type PlayerServer struct {
 }
 
 func (p *PlayerServer) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+
+	router := http.NewServeMux()
+
+	router.Handle("/league", http.HandlerFunc(p.leagueHandler))
+
+	router.Handle("/players/", http.HandlerFunc(p.playersHandler))
+
+	router.ServeHTTP(rw, r)
+
+}
+
+func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (p *PlayerServer) playersHandler(w http.ResponseWriter, r *http.Request) {
+	player := r.URL.Path[len("/players/"):]
 	switch r.Method {
 	case http.MethodPost:
-		p.processWins(rw, player)
+		p.processWins(w, player)
 	case http.MethodGet:
-		p.showScore(rw, player)
+		p.showScore(w, player)
 	}
 }
 
