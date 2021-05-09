@@ -5,9 +5,10 @@ import (
 	"net/http"
 
 	"example.go.com/HttpServer/data"
+	"example.go.com/HttpServer/handler"
 )
 
 func main() {
-	ser := NewPlayerServer(data.NewInMemoryPlayerStore())
+	ser := handler.NewPlayerServer(data.NewInMemoryPlayerStore())
 	log.Fatal(http.ListenAndServe(":5000", ser))
 }

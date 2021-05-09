@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"example.go.com/HttpServer/data"
+	"example.go.com/HttpServer/handler"
 )
 
 type StubPlayerStore struct {
@@ -27,7 +28,7 @@ func (stub *StubPlayerStore) RecordWin(name string) {
 	stub.winCalls = append(stub.winCalls, name)
 }
 
-func (stub *StubPlayerStore) GetLeague() []data.Player {
+func (stub *StubPlayerStore) GetLeague() data.League {
 	return stub.league
 }
 
@@ -40,7 +41,7 @@ func TestGetPlayers(t *testing.T) {
 		[]string{},
 		nil,
 	}
-	server := NewPlayerServer(&store)
+	server := handler.NewPlayerServer(&store)
 	t.Run("returns Pepper's score", func(t *testing.T) {
 		request := newGetScoreRequest("Pepper")
 		response := httptest.NewRecorder()
@@ -77,7 +78,7 @@ func TestStoreWins(t *testing.T) {
 		[]string{},
 		nil,
 	}
-	server := NewPlayerServer(&store)
+	server := handler.NewPlayerServer(&store)
 
 	t.Run("returns accepted on POST", func(t *testing.T) {
 		request := newPostWinRequest("Pepper")
@@ -92,44 +93,9 @@ func TestStoreWins(t *testing.T) {
 	})
 }
 
-func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	store := data.NewInMemoryPlayerStore()
-	server := NewPlayerServer(store)
-	player := "Pepper"
-
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-
-	t.Run("get score", func(t *testing.T) {
-		response := httptest.NewRecorder()
-
-		server.ServeHTTP(response, newGetScoreRequest(player))
-
-		assertResponseStatus(t, response.Code, http.StatusOK)
-		assertResponseBody(t, response.Body.String(), "3")
-	})
-
-	t.Run("get league", func(t *testing.T) {
-		response := httptest.NewRecorder()
-
-		server.ServeHTTP(response, newLeagueRequest())
-
-		assertResponseStatus(t, response.Code, http.StatusOK)
-
-		got := getLeagueFromResponse(t, response.Body)
-		want := []data.Player{
-			{"Pepper", 3},
-		}
-
-		assertLeague(t, got, want)
-	})
-
-}
-
 func TestLeague(t *testing.T) {
 	store := StubPlayerStore{}
-	server := NewPlayerServer(&store)
+	server := handler.NewPlayerServer(&store)
 
 	t.Run("get status code 200 on /league", func(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/league", nil)
@@ -155,7 +121,7 @@ func TestLeague(t *testing.T) {
 			{Name: "Aygl", Wins: 1000},
 		}
 		store := StubPlayerStore{nil, nil, wantedLeague}
-		server := NewPlayerServer(&store)
+		server := handler.NewPlayerServer(&store)
 
 		request := newLeagueRequest()
 
@@ -165,7 +131,7 @@ func TestLeague(t *testing.T) {
 
 		got := getLeagueFromResponse(t, response.Body)
 
-		assertContentType(t, response, jsonContentType)
+		assertContentType(t, response, handler.JsonContentType)
 		assertResponseStatus(t, response.Code, http.StatusOK)
 
 		assertLeague(t, got, wantedLeague)

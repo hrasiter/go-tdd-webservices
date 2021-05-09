@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"example.go.com/HttpServer/data"
 )
 
-const jsonContentType = "application/json"
+const JsonContentType = "application/json"
 
 type PlayerServer struct {
 	store data.PlayerStore
@@ -29,7 +29,7 @@ func NewPlayerServer(store data.PlayerStore) *PlayerServer {
 }
 
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-type", jsonContentType)
+	w.Header().Set("content-type", JsonContentType)
 	json.NewEncoder(w).Encode(p.store.GetLeague())
 	w.WriteHeader(http.StatusOK)
 }
