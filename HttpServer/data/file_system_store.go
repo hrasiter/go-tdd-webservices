@@ -3,6 +3,7 @@ package data
 import (
 	"encoding/json"
 	"io"
+	"log"
 )
 
 type FileSystemPlayerStore struct {
@@ -26,8 +27,11 @@ func (f *FileSystemPlayerStore) GetPlayerScore(name string) int {
 }
 
 func (f *FileSystemPlayerStore) RecordWin(name string) {
+	log.Printf("Record New Win %q\n", name)
 	league := f.GetLeague()
 	player := league.Find(name)
+
+	log.Printf("RecordWin for name : %q", name)
 
 	if player != nil {
 		player.Wins++

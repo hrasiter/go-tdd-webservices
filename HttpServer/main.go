@@ -3,12 +3,25 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"example.go.com/HttpServer/data"
 	"example.go.com/HttpServer/handler"
 )
 
+const dbFileName = "game.db.json"
+
 func main() {
-	ser := handler.NewPlayerServer(data.NewInMemoryPlayerStore())
-	log.Fatal(http.ListenAndServe(":5000", ser))
+	db, err := os.OpenFile(dbFileName, os.O_RDWR|os.O_CREATE, 0666)
+
+	if err != nil {
+		log.Fatalf("problem opening %s %v", dbFileName, err)
+	}
+
+	store := &data.FileSystemPlayerStore{Database: db}
+	server := handler.NewPlayerServer(store)
+
+	if err := http.ListenAndServe(":5000", server); err != nil {
+		log.Fatalf("could not listen on port 5000 %v", err)
+	}
 }

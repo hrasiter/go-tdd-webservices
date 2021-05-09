@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"example.go.com/HttpServer/data"
@@ -55,6 +56,7 @@ func (p *PlayerServer) showScore(w http.ResponseWriter, player string) {
 }
 
 func (p *PlayerServer) processWins(w http.ResponseWriter, player string) {
+	log.Printf("Processing win for name %q\n", player)
 	p.store.RecordWin(player)
 	w.WriteHeader(http.StatusAccepted)
 }
