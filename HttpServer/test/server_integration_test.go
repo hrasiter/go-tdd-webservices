@@ -10,9 +10,11 @@ import (
 )
 
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	database, cleanDatabase := createTempFile(t, "")
+	database, cleanDatabase := createTempFile(t, "[]")
 	defer cleanDatabase()
-	store := &data.FileSystemPlayerStore{Database: database}
+	store, err := data.NewFileSystemPlayerStore(database)
+	assertNoError(t, err)
+
 	server := handler.NewPlayerServer(store)
 	player := "Pepper"
 
